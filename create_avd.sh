@@ -6,4 +6,4 @@ echo yes | $ANDROID_HOME/tools/bin/sdkmanager "tools" "system-images;android-28;
 
 echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -f -n emulator -k "system-images;android-28;default;x86" --device "Nexus 5"
 
-$ANDROID_HOME/emulator/emulator -avd emulator -no-audio -no-window &
+$ANDROID_HOME/emulator/emulator -avd emulator -no-audio -no-window -no-snapshot -wipe-data &

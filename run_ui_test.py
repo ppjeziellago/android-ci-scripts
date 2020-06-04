@@ -14,41 +14,49 @@ IGNORED_MODULES_UI_TEST=":modulea, :moduleb, :modulec, :libraries:lib"
 
 '''
 
-PROJECT_DIR=environ['PROJECT_LOCATION']
-
-IGNORED_MODULES_UI_TEST=''
-
-try: 
-    IGNORED_MODULES_UI_TEST=environ['IGNORED_MODULES_UI_TEST']
-    print('[IGNORING MODULES] %s' % IGNORED_MODULES_UI_TEST)
-except: pass
-
-RUN_INSTRUMENTED_TEST_COMMAND="cd %s; ./gradlew %s"
-
-LIST_INSTRUMENTED_TEST_MODULES = "cd %s; ./gradlew tasks --all | grep connectedDebugAndroidTest"
-
 def run_shell(command, enable_output):
-    print('\n\n[RUNNING] %s' % command)
+    print('\n\n[RUNNING] {}'.format(command))
     return subprocess.Popen(command, 
             shell=True, 
             stdout=subprocess.PIPE if enable_output else None, 
             stderr=subprocess.PIPE
     ).communicate()
 
-output, error = run_shell(LIST_INSTRUMENTED_TEST_MODULES % PROJECT_DIR, True)
+def get_modules(project_dir):
+    output, error = run_shell("cd {}; ./gradlew tasks --all | grep connectedDebugAndroidTest".format(project_dir), True)
+    if error: raise Exception('\n\n[ERROR]\n{}'.format(error))
 
-if error: raise Exception('\n\n[ERROR]\n%s' % error)
+    modules=[ module.split('-')[0].strip() for module in output.strip().split('.')[:-1] ]
 
-modules=[ module.split('-')[0].strip() for module in output.strip().split('.')[:-1] ]
+    modules_with_task=''
+    ignored_modules=''
 
-modules_inlined=''
+    try: 
+        ignored_modules=environ['IGNORED_MODULES_UI_TEST']
+        print('[IGNORING MODULES] {}'.format(ignored_modules))
+    except: 
+        pass
 
-for module in modules: 
-    if (':%s' % module.strip().replace(':connectedDebugAndroidTest','')) not in IGNORED_MODULES_UI_TEST:
-        modules_inlined +=' :%s' % module
+    for module in modules: 
+        if ':{}'.format(module.strip().replace(':connectedDebugAndroidTest','')) not in ignored_modules:
+            modules_with_task +=' :{}'.format(module)
 
-instrumented_test_gradle_task=RUN_INSTRUMENTED_TEST_COMMAND % (PROJECT_DIR, modules_inlined)
+    return modules_with_task
 
-_, error = run_shell(instrumented_test_gradle_task, False)
+def run_instrumented_test(project_dir, modules):
+    instrumented_test_gradle_task="cd {}; ./gradlew {}".format(project_dir, modules)
 
-if error: raise Exception("\n\n[ERROR]\n%s" % error)
+    _, error = run_shell(instrumented_test_gradle_task, False)
+
+    if error: raise Exception("\n\n[ERROR]\n{}".format(error))
+
+def main():
+    project_dir=environ['PROJECT_LOCATION']
+
+    modules=get_modules(project_dir)
+
+    run_instrumented_test(project_dir, modules)
+
+
+if __name__ == '__main__':
+    main()

@@ -14,15 +14,15 @@ RUN_INSTRUMENTED_TEST_COMMAND="cd %s; ./gradlew %s"
 
 LIST_INSTRUMENTED_TEST_MODULES = "cd %s; ./gradlew tasks --all | grep connectedDebugAndroidTest"
 
-def run_shell(command):
+def run_shell(command, enable_output):
     print('\n\n[RUNNING] %s' % command)
     return subprocess.Popen(command, 
             shell=True, 
-            stdout=subprocess.PIPE, 
+            stdout=subprocess.PIPE if enable_output else None, 
             stderr=subprocess.PIPE
     ).communicate()
 
-output, error = run_shell(LIST_INSTRUMENTED_TEST_MODULES % PROJECT_DIR)
+output, error = run_shell(LIST_INSTRUMENTED_TEST_MODULES % PROJECT_DIR, True)
 
 if error: raise Exception('\n\n[ERROR]\n%s' % error)
 
@@ -36,6 +36,6 @@ for module in modules:
 
 instrumented_test_gradle_task=RUN_INSTRUMENTED_TEST_COMMAND % (PROJECT_DIR, modules_inlined)
 
-_, error = run_shell(instrumented_test_gradle_task)
+_, error = run_shell(instrumented_test_gradle_task, False)
 
 if error: raise Exception("\n\n[ERROR]\n%s" % error)

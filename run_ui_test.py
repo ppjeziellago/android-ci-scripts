@@ -3,10 +3,12 @@ import subprocess
 
 # `environ['PROJECT_LOCATION']` Required
 # `environ['IGNORED_MODULES_UI_TEST']` Optional
-
 PROJECT_DIR=environ['PROJECT_LOCATION']
 
-IGNORED_MODULES_UI_TEST=environ['IGNORED_MODULES_UI_TEST']
+IGNORED_MODULES_UI_TEST=''
+
+try: IGNORED_MODULES_UI_TEST=environ['IGNORED_MODULES_UI_TEST'] 
+except: pass
 
 RUN_INSTRUMENTED_TEST_COMMAND="cd %s; ./gradlew %s"
 

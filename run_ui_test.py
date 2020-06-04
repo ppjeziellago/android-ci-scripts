@@ -7,7 +7,9 @@ PROJECT_DIR=environ['PROJECT_LOCATION']
 
 IGNORED_MODULES_UI_TEST=''
 
-try: IGNORED_MODULES_UI_TEST=environ['IGNORED_MODULES_UI_TEST'] 
+try: 
+    IGNORED_MODULES_UI_TEST=environ['IGNORED_MODULES_UI_TEST']
+    print('[IGNORING MODULES] %s' % IGNORED_MODULES_UI_TEST)
 except: pass
 
 RUN_INSTRUMENTED_TEST_COMMAND="cd %s; ./gradlew %s"
@@ -31,8 +33,8 @@ modules=[ module.split('-')[0].strip() for module in output.strip().split('.')[:
 modules_inlined=''
 
 for module in modules: 
-    if module not in IGNORED_MODULES_UI_TEST:
-        modules_inlined +=' %s' % module
+    if (':%s' % module.strip().replace(':connectedDebugAndroidTest','')) not in IGNORED_MODULES_UI_TEST:
+        modules_inlined +=' :%s' % module
 
 instrumented_test_gradle_task=RUN_INSTRUMENTED_TEST_COMMAND % (PROJECT_DIR, modules_inlined)
 

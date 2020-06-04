@@ -1,8 +1,19 @@
 from os import environ, system
 import subprocess
 
-# `environ['PROJECT_LOCATION']` Required
-# `environ['IGNORED_MODULES_UI_TEST']` Optional
+'''
+
+[REQUIRED] 
+Env var `PROJECT_LOCATION` with project dir path
+
+[OPTIONAL]
+Env var `IGNORED_MODULES_UI_TEST` with modules to ignore on instrumented tests
+
+Example:
+IGNORED_MODULES_UI_TEST=":modulea, :moduleb, :modulec, :libraries:lib"
+
+'''
+
 PROJECT_DIR=environ['PROJECT_LOCATION']
 
 IGNORED_MODULES_UI_TEST=''
